@@ -11,14 +11,68 @@ datasource db {
 }
 
 model User {
-    id String @id
-    email String @unique
-    password String 
-    role Role @default(USER)
+  id       String @id
+  email    String @unique
+  password String
+  role     Role   @default(USER)
+}
+
+model Project {
+  id       String        @id
+  name     String
+  status   ProjectStatus @default(ACTIVE)
+  tasks    Task[]
+  logbooks Logbook[]
+}
+
+model Logbook {
+  id        String   @id
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model Task {
+  id        String     @id
+  projectId String
+  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title     String
+  body      String
+  status    TaskStatus @default(NOT_STARTED)
+  startDate DateTime   @db.Date
+  endDate   DateTime   @db.Date
+  manageBy  String
+  subtasks   Subtask[]
+}
+
+model Subtask {
+  id        String        @id
+  taskId    String
+  task      Task          @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  title     String
+  status    SubtaskStatus @default(NOT_DONE)
+  createdAt DateTime      @default(now())
+}
+
+enum SubtaskStatus {
+  NOT_DONE
+  DONE
+}
+
+enum TaskStatus {
+  NOT_STARTED
+  ON_PROGRESS
+  DONE
+}
+
+enum ProjectStatus {
+  ACTIVE
+  ARCHIVED
 }
 
 enum Role {
-    USER
-    HR
-    OWNER
-  }
+  USER
+  ADMIN
+  OWNER
+}

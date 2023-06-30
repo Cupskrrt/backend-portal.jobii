@@ -100,7 +100,7 @@ export const refresh = async (req, res) => {
       userId,
     };
 
-    const newToken = jwt.sign(payload, tokenSecret, { expiresIn: "15m" });
+    const newToken = jwt.sign(payload, tokenSecret, { expiresIn: "5m" });
 
     const newRefreshToken = jwt.sign(payload, refreshSecret, {
       expiresIn: "8h",

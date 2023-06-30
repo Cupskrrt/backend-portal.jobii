@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Subtask` ADD COLUMN `status` ENUM('NOT_DONE', 'DONE') NOT NULL DEFAULT 'NOT_DONE';
