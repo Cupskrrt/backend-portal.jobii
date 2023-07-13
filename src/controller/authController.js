@@ -59,7 +59,7 @@ export const login = async (req, res) => {
     const isPasswordValid = await verifyPassword(password, user.password);
 
     if (!isPasswordValid) {
-      return res.status(401).json({ error: "Incorrect password!" });
+      return res.status(401).json({ msg: "Incorrect password!" });
     }
 
     const payload = {
@@ -80,9 +80,9 @@ export const login = async (req, res) => {
       .cookie("token", token)
       .cookie("refreshToken", refreshToken)
       .status(200)
-      .json({ msg: "Login successfull!" });
+      .json({ msg: "Login successfull!", token: token, user: user });
   } catch (err) {
-    res.json(err);
+    res.json({ msg: err });
   }
 };
 
@@ -111,7 +111,7 @@ export const refresh = async (req, res) => {
       .cookie("refreshToken", newRefreshToken, cookieOptions)
       .header("Access-Control-Allow-Credentials", true)
       .status(200)
-      .json({ msg: "Refresh successfull" });
+      .json({ msg: "Refresh successfull", token: newToken });
   } catch (error) {
     return res.status(401).json({ error: "Invalid or expired refresh token" });
   }

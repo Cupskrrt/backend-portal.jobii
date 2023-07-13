@@ -3,8 +3,12 @@ import { v4 } from "uuid";
 
 export const getAllProject = async (req, res) => {
   try {
-    const projects = await db.Project.findMany({});
-    res.status(200).json(projects);
+    const project = await db.Project.findMany({
+      include: {
+        tasks: true,
+      },
+    });
+    res.status(200).json(project);
   } catch (err) {
     res.status(400).json({ msg: err.message });
   }
@@ -34,13 +38,14 @@ export const getProject = async (req, res) => {
 };
 
 export const createProject = async (req, res) => {
-  const { name } = req.body;
+  const { name, status } = req.body;
 
   try {
     await db.Project.create({
       data: {
         id: v4(),
         name,
+        status,
       },
     });
     res.status(201).json({ msg: "Project created successfully" });
@@ -49,20 +54,33 @@ export const createProject = async (req, res) => {
   }
 };
 
+export const deleteProject = async (req, res) => {
+  const projectId = req.params.projectId;
+  try {
+    await db.project.delete({
+      where: {
+        id: projectId,
+      },
+    });
+    res.status(201).json({ msg: "Project deleted successfully" });
+  } catch (err) {
+    res.status(400).json({ msg: err.message });
+  }
+};
+
 export const createTask = async (req, res) => {
   const projectId = req.params.projectId;
-  const { title, body, startDate, endDate, manageBy } = req.body;
+  const { ...body } = req.body;
 
   try {
     await db.Task.create({
       data: {
         id: v4(),
         projectId,
-        title,
-        body,
-        startDate: startDate + "T00:00:00.000Z",
-        endDate: endDate + "T00:00:00.000Z",
-        manageBy,
+        manageBy: "Not Assigned",
+        startDate: new Date(),
+        endDate: new Date(),
+        ...body,
       },
     });
     res.status(201).json({ msg: "Task created sucessfully" });
@@ -73,7 +91,7 @@ export const createTask = async (req, res) => {
 
 export const updateTask = async (req, res) => {
   const taskId = req.params.taskId;
-  const { title } = req.body;
+  const changes = req.body;
 
   try {
     await db.Task.update({
@@ -81,7 +99,8 @@ export const updateTask = async (req, res) => {
         id: taskId,
       },
       data: {
-        title,
+        status: changes.status,
+        ...changes,
       },
     });
     res.status(201).json({ msg: "Task updated sucessfully" });
